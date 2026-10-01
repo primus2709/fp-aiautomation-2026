@@ -1,8 +1,10 @@
 # Otomatisasi Pengajuan, Approval, dan Notifikasi Surat Kelurahan
 
-## Preview Workflow
+## Preview Workflow dan Link n8n
 
-![Preview Workflow n8n](\images\workflow.png)
+![Preview Workflow n8n](images/workflow.png)
+
+**Link n8n** : https://primusfir.app.n8n.cloud/assistant/b634e4bd-2f6d-4c52-9376-37ee6a338416
 
 **Final Project – AI Automation**
 Dibuat oleh: **Muhammad Amar Primus Firdaus**
@@ -26,26 +28,25 @@ Automation dibuat untuk **mempercepat dan menyederhanakan** proses persuratan, k
 
 ## 3. Fitur Utama
 
-| Fitur | Keterangan |
-|---|---|
-| Pengajuan via Google Form | Pemohon mengisi data diri, jenis surat, dan keperluan. |
-| Database di Google Sheets | Seluruh respons tersimpan otomatis sebagai database pengajuan. |
+| Fitur                      | Keterangan                                                                   |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| Pengajuan via Google Form  | Pemohon mengisi data diri, jenis surat, dan keperluan.                       |
+| Database di Google Sheets  | Seluruh respons tersimpan otomatis sebagai database pengajuan.               |
 | Pengecekan status validasi | Conditional logic (IF) memisahkan data valid dan data yang perlu diperbaiki. |
-| Ringkasan oleh AI | Gemini membuat ringkasan singkat pengajuan untuk pejabat. |
-| Email ke pejabat | Pejabat menerima ringkasan pengajuan yang siap di-approval. |
-| Reminder terjadwal | Setiap hari pukul 13:00, pengajuan yang masih menunggu approval diingatkan. |
-| Notifikasi ke pemohon | Email otomatis: permintaan isi ulang data, atau surat sudah dapat diambil. |
+| Ringkasan oleh AI          | Gemini membuat ringkasan singkat pengajuan untuk pejabat.                    |
+| Email ke pejabat           | Pejabat menerima ringkasan pengajuan yang siap di-approval.                  |
+| Reminder terjadwal         | Setiap hari pukul 13:00, pengajuan yang masih menunggu approval diingatkan.  |
+| Notifikasi ke pemohon      | Email otomatis: permintaan isi ulang data, atau surat sudah dapat diambil.   |
 
 ## 4. Teknologi yang Digunakan
 
-| Komponen | Fungsi |
-|---|---|
-| **n8n** | Platform workflow automation |
-| **Google Forms** | Formulir pengajuan surat |
-| **Google Sheets** | Database & pencatatan status (Validasi, Approval, Reminder) |
-| **Gmail** | Pengiriman email ke pemohon dan pejabat |
-| **Google Gemini API** (`gemini-3-flash-preview`) | Model AI untuk meringkas pengajuan |
-
+| Komponen                                         | Fungsi                                                      |
+| ------------------------------------------------ | ----------------------------------------------------------- |
+| **n8n**                                          | Platform workflow automation                                |
+| **Google Forms**                                 | Formulir pengajuan surat                                    |
+| **Google Sheets**                                | Database & pencatatan status (Validasi, Approval, Reminder) |
+| **Gmail**                                        | Pengiriman email ke pemohon dan pejabat                     |
+| **Google Gemini API** (`gemini-3-flash-preview`) | Model AI untuk meringkas pengajuan                          |
 
 ## 5. Arsitektur & Alur Kerja
 
@@ -72,27 +73,27 @@ flowchart TD
 
 ### Bagian 1 – Pengajuan, Validasi & Ringkasan AI
 
-| No | Node | Fungsi |
-|---|---|---|
-| 1 | **Pengajuan Permintaan Surat** (Google Sheets Trigger) | Memantau spreadsheet setiap menit untuk data baru/berubah. |
-| 2 | **Eksekusi Persuratan per Menit** (Limit) | Membatasi pemrosesan agar dijalankan satu per satu. |
-| 3 | **If only if** (IF) | Lolos jika `Status Validasi = Valid` **dan** `Status Approval` masih kosong. |
-| 4 | **Edit TimeStamp** (Set) | Merapikan field (nama, NIK, alamat, jenis surat, dll.) dan mengonversi timestamp ke format `dd/MM/yyyy HH:mm:ss`. |
-| 5 | **Meringkas informasi** (Gemini) | Membuat ringkasan pengajuan untuk pejabat. |
-| 6 | **Mengirim ke pejabat terkait** (Gmail) | Mengirim ringkasan AI dan instruksi pengisian kolom *Status Approval*. |
-| 7 | **Update Informasi : Menunggu Approval** (Google Sheets) | Mengisi `Status Approval = Menunggu Approval` (pencocokan baris berdasarkan `Timestamp`). |
-| 8 | **Email untuk data yang salah** (Gmail) | Cabang *false*: meminta pemohon mengisi ulang Google Form. |
+| No  | Node                                                     | Fungsi                                                                                                            |
+| --- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1   | **Pengajuan Permintaan Surat** (Google Sheets Trigger)   | Memantau spreadsheet setiap menit untuk data baru/berubah.                                                        |
+| 2   | **Eksekusi Persuratan per Menit** (Limit)                | Membatasi pemrosesan agar dijalankan satu per satu.                                                               |
+| 3   | **If only if** (IF)                                      | Lolos jika `Status Validasi = Valid` **dan** `Status Approval` masih kosong.                                      |
+| 4   | **Edit TimeStamp** (Set)                                 | Merapikan field (nama, NIK, alamat, jenis surat, dll.) dan mengonversi timestamp ke format `dd/MM/yyyy HH:mm:ss`. |
+| 5   | **Meringkas informasi** (Gemini)                         | Membuat ringkasan pengajuan untuk pejabat.                                                                        |
+| 6   | **Mengirim ke pejabat terkait** (Gmail)                  | Mengirim ringkasan AI dan instruksi pengisian kolom _Status Approval_.                                            |
+| 7   | **Update Informasi : Menunggu Approval** (Google Sheets) | Mengisi `Status Approval = Menunggu Approval` (pencocokan baris berdasarkan `Timestamp`).                         |
+| 8   | **Email untuk data yang salah** (Gmail)                  | Cabang _false_: meminta pemohon mengisi ulang Google Form.                                                        |
 
 ### Bagian 2 – Reminder & Notifikasi Hasil
 
-| No | Node | Fungsi |
-|---|---|---|
-| 1 | **Reminder : Trigger Kepada Pejabat Terkait** (Schedule) | Berjalan setiap hari pukul **13:00**. |
-| 2 | **Get row(s) in sheet** (Google Sheets) | Mengambil baris dengan `Status Approval = Menunggu Approval`. |
-| 3 | **If only If** (IF) | Mengecek status dan penanda reminder (`Reminder`). |
-| 4 | **Reminder Pejabat Terkait** (Gmail) | Mengirim reminder (nama pemohon, jenis surat, tanggal pengajuan) ke pejabat. |
-| 5 | **Update : Persuratan sudah disetujui** (Google Sheets) | Memperbarui kolom `Status Approval` dan `Reminder` berdasarkan `row_number`. |
-| 6 | **Email : Untuk persuratan yang sudah disetujui** (Gmail) | Memberi tahu pemohon bahwa surat dapat diambil di Kantor Kelurahan Jelambar. |
+| No  | Node                                                      | Fungsi                                                                       |
+| --- | --------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | **Reminder : Trigger Kepada Pejabat Terkait** (Schedule)  | Berjalan setiap hari pukul **13:00**.                                        |
+| 2   | **Get row(s) in sheet** (Google Sheets)                   | Mengambil baris dengan `Status Approval = Menunggu Approval`.                |
+| 3   | **If only If** (IF)                                       | Mengecek status dan penanda reminder (`Reminder`).                           |
+| 4   | **Reminder Pejabat Terkait** (Gmail)                      | Mengirim reminder (nama pemohon, jenis surat, tanggal pengajuan) ke pejabat. |
+| 5   | **Update : Persuratan sudah disetujui** (Google Sheets)   | Memperbarui kolom `Status Approval` dan `Reminder` berdasarkan `row_number`. |
+| 6   | **Email : Untuk persuratan yang sudah disetujui** (Gmail) | Memberi tahu pemohon bahwa surat dapat diambil di Kantor Kelurahan Jelambar. |
 
 ## 6. Prompt AI
 
@@ -123,16 +124,17 @@ Keputusan approval **tetap sepenuhnya di tangan pejabat**; AI hanya membantu mem
 
 Sheet `Form Responses 1` berisi kolom:
 
-| Kolom | Diisi oleh |
-|---|---|
-| Timestamp, Nama Pemohon, NIK, Email, Alamat, Nomor Telepon, Jenis Surat, Keperluan, Keterangan Tambahan | Google Form (otomatis) |
-| Status Validasi | Petugas (isi `Valid` jika data sesuai) |
-| Status Approval | Workflow (`Menunggu Approval`) / Pejabat |
-| Reminder | Workflow |
+| Kolom                                                                                                   | Diisi oleh                               |
+| ------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Timestamp, Nama Pemohon, NIK, Email, Alamat, Nomor Telepon, Jenis Surat, Keperluan, Keterangan Tambahan | Google Form (otomatis)                   |
+| Status Validasi                                                                                         | Petugas (isi `Valid` jika data sesuai)   |
+| Status Approval                                                                                         | Workflow (`Menunggu Approval`) / Pejabat |
+| Reminder                                                                                                | Workflow                                 |
 
 ## 8. Langkah Instalasi & Konfigurasi
 
 ### Prasyarat
+
 - Akun n8n (cloud atau self-hosted).
 - Akun Google (Forms, Sheets, Gmail).
 - API Key Google Gemini (dari Google AI Studio).
@@ -144,10 +146,10 @@ Sheet `Form Responses 1` berisi kolom:
    Contoh formulir: https://forms.gle/RfmjN7EyU3DjFeXo6
 
 2. **Hubungkan ke Google Sheets**
-   Di tab *Responses* → *Link to Sheets*. Lalu tambahkan tiga kolom manual di sebelah kanan: `Status Validasi`, `Status Approval`, `Reminder`.
+   Di tab _Responses_ → _Link to Sheets_. Lalu tambahkan tiga kolom manual di sebelah kanan: `Status Validasi`, `Status Approval`, `Reminder`.
 
 3. **Import workflow ke n8n**
-   Buka n8n → *Workflows* → *Import from File* → pilih file JSON workflow di repositori ini.
+   Buka n8n → _Workflows_ → _Import from File_ → pilih file JSON workflow di repositori ini.
 
 4. **Atur kredensial** (buat sendiri, jangan memakai kredensial orang lain):
    - Google Sheets OAuth2 (untuk node Sheets dan Sheets Trigger)
@@ -158,22 +160,22 @@ Sheet `Form Responses 1` berisi kolom:
    Pada setiap node Google Sheets, pilih spreadsheet milik Anda dan sheet `Form Responses 1`.
 
 6. **Ganti alamat email penerima**
-   Pada node *Mengirim ke pejabat terkait* dan *Reminder Pejabat Terkait*, isi dengan email pejabat yang sesungguhnya.
+   Pada node _Mengirim ke pejabat terkait_ dan _Reminder Pejabat Terkait_, isi dengan email pejabat yang sesungguhnya.
 
 7. **Cek jadwal reminder**
-   Pada node *Reminder : Trigger Kepada Pejabat Terkait*, sesuaikan jam jika perlu (default pukul 13:00).
+   Pada node _Reminder : Trigger Kepada Pejabat Terkait_, sesuaikan jam jika perlu (default pukul 13:00).
 
 8. **Aktifkan workflow**
-   Klik *Publish/Active* agar trigger berjalan otomatis.
+   Klik _Publish/Active_ agar trigger berjalan otomatis.
 
 ## 9. Cara Menguji (Skenario Uji)
 
-| Skenario | Langkah | Hasil yang diharapkan |
-|---|---|---|
-| Data valid | Isi form → petugas mengisi `Status Validasi = Valid` | Pejabat menerima email ringkasan AI; `Status Approval` menjadi *Menunggu Approval*. |
-| Data tidak valid | Petugas mengisi status selain `Valid` | Pemohon menerima email permintaan isi ulang formulir. |
-| Reminder | Biarkan baris berstatus *Menunggu Approval* hingga jam terjadwal (atau jalankan manual) | Pejabat menerima email reminder. |
-| Notifikasi selesai | Alur reminder selesai dijalankan | Pemohon menerima email bahwa surat dapat diambil. |
+| Skenario           | Langkah                                                                                 | Hasil yang diharapkan                                                               |
+| ------------------ | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Data valid         | Isi form → petugas mengisi `Status Validasi = Valid`                                    | Pejabat menerima email ringkasan AI; `Status Approval` menjadi _Menunggu Approval_. |
+| Data tidak valid   | Petugas mengisi status selain `Valid`                                                   | Pemohon menerima email permintaan isi ulang formulir.                               |
+| Reminder           | Biarkan baris berstatus _Menunggu Approval_ hingga jam terjadwal (atau jalankan manual) | Pejabat menerima email reminder.                                                    |
+| Notifikasi selesai | Alur reminder selesai dijalankan                                                        | Pemohon menerima email bahwa surat dapat diambil.                                   |
 
 ## 10. Keamanan & Privasi
 
