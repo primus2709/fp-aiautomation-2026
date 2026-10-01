@@ -1,0 +1,1027 @@
+{
+  "name": "Final Project - Muhammad Amar Primus Firdaus - AI Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Background : \nProses pengajuan surat di kelurahan melibatkan beberapa tahapan, mulai dari pengisian data oleh pemohon, validasi oleh petugas, hingga proses approval dan pemberitahuan hasil kepada pemohon. Jika dilakukan secara manual, proses ini dapat membutuhkan waktu lebih lama dan berisiko terjadi keterlambatan dalam memberikan informasi kepada pihak terkait.",
+        "width": 576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "7122587d-bba0-49cf-aa9d-c62f28921a33",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0",
+          "mode": "list",
+          "cachedResultName": "Formulir Pengajuan Kelurahan Jelambar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1805552640,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit#gid=1805552640"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status Approval",
+              "lookupValue": "Menunggu Approval"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -384,
+        480
+      ],
+      "id": "41340345-c349-4b1c-b390-50ee56bf09c1",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EEN77WZMC4ptKW73",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0",
+          "mode": "list",
+          "cachedResultName": "Formulir Pengajuan E-Letter Program Studi Matematika  (Jawaban)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1805552640,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit#gid=1805552640"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        80
+      ],
+      "id": "265f841e-f118-4fcc-be0f-2f70faf45d21",
+      "name": "Pengajuan Permintaan Surat",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "nVsFMJJ1i6csxCTt",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "284b866a-e996-4a8b-9b79-21b07a0cd58f",
+              "leftValue": "={{ $json['Status Validasi'] }}",
+              "rightValue": "Valid",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "f846393d-adaf-46d4-9d06-8713711a4c38",
+              "leftValue": "={{ $json['Status Approval'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -192,
+        80
+      ],
+      "id": "cc0070f0-1172-4b06-8091-0a6095e5ed43",
+      "name": "If only if"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04330a0a-c548-430c-9465-6cb272766649",
+              "name": "timestamp_Format",
+              "value": "={{ DateTime.fromMillis((Number($json.Timestamp) - 25569) * 86400000, { zone: 'utc' }).toFormat('dd/MM/yyyy HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "66f221a4-d701-4942-8b06-c7d669a7518c",
+              "name": "nama_pemohon",
+              "value": "={{ $json['Nama Pemohon '] }}",
+              "type": "string"
+            },
+            {
+              "id": "e993cbe3-4829-4be2-9925-6fe60c34c5a9",
+              "name": "NIK",
+              "value": "={{ $json.NIK }}",
+              "type": "number"
+            },
+            {
+              "id": "8dd3d6bb-ee6b-47e3-858a-336260f74095",
+              "name": "email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "f43e60b0-b55c-4744-9976-0e6f67f59825",
+              "name": "alamat",
+              "value": "={{ $json.Alamat }}",
+              "type": "string"
+            },
+            {
+              "id": "44597a1e-e692-4f5a-b291-c9ec5fee352f",
+              "name": "nomor_telepon",
+              "value": "={{ $json['Nomor Telepon '] }}",
+              "type": "string"
+            },
+            {
+              "id": "76da3293-81ce-4bab-90a7-81ecb4d86f37",
+              "name": "jenis_surat",
+              "value": "={{ $json['Jenis Surat'] }}",
+              "type": "string"
+            },
+            {
+              "id": "25b84280-6804-45d9-8efd-16c1e59012f9",
+              "name": "keperluan",
+              "value": "={{ $json.Keperluan }}",
+              "type": "string"
+            },
+            {
+              "id": "93b5d42a-5e8e-4600-b888-b74e81ad0578",
+              "name": "keterangan_tambahan",
+              "value": "={{ $json['Keterangan Tambahan'] }}",
+              "type": "string"
+            },
+            {
+              "id": "9d34e087-160f-4ea4-9bae-37c9abd05f54",
+              "name": "status_validasi",
+              "value": "={{ $json['Status Validasi'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4a82b556-0d68-43d9-a765-f398473a44c0",
+              "name": "status_approval",
+              "value": "={{ $json['Status Approval'] }}",
+              "type": "string"
+            },
+            {
+              "id": "87095e90-bbb3-4d8c-a7f2-483c41db64eb",
+              "name": "reminder",
+              "value": "={{ $json.Reminder }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        32,
+        -16
+      ],
+      "id": "a144c3f2-b2f8-4f4e-8eb1-f17dae0fd660",
+      "name": "Edit TimeStamp"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Permohonan Pengisian Kembali Formulir Pengajuan Surat",
+        "emailType": "text",
+        "message": "=Yth. Bapak/Ibu, {{ $json['Nama Pemohon '] }}  \n\nKami informasikan bahwa setelah dilakukan pengecekan terhadap data pengajuan {{ $json['Jenis Surat'] }} yang sebelumnya Bapak/Ibu kirimkan, terdapat beberapa data yang perlu diperiksa dan diperbaiki kembali.  \n\nSehubungan dengan hal tersebut, mohon kesediaan Bapak/Ibu untuk melakukan pengisian kembali formulir pengajuan melalui Google Form yang telah disediakan. \n\nPengisian ulang diperlukan agar data dapat kami validasi dan proses pengajuan surat dapat dilanjutkan dengan data yang sesuai. Mohon memastikan seluruh data yang diisikan sudah benar dan sesuai dengan dokumen yang berlaku.  \n\nAtas perhatian dan kerja samanya, kami ucapkan terima kasih.  \n\nHormat kami, \nKelurahan Jelambar",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        176
+      ],
+      "id": "de92da2c-58b9-47bd-a7fd-08d91e8dd028",
+      "name": "Email untuk data yang salah",
+      "webhookId": "914f061e-0ffb-40b1-9bd6-5ab0afc877e0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ahpaskqo2UAHHObd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Anda adalah Asisten Administrasi Persuratan Kelurahan Jelambar.\n\nTugas Anda hanya membuat RINGKASAN PENGAJUAN SURAT berdasarkan data yang diberikan.\n\nRingkasan akan digunakan oleh pejabat terkait sebagai informasi sebelum melakukan approval.\n\nDATA PENGAJUAN:\n\nNama Pemohon:\n{{ $json.nama_pemohon }}\n\nNIK:\n{{ $json.NIK }}\n\nAlamat:\n{{ $json.alamat }}\n\nJenis Surat:\n{{ $json.jenis_surat }}\n\nKeperluan:\n{{ $json.keperluan }}\n\nKeterangan Tambahan:\n{{ $json.keterangan_tambahan }}\n\n\nATURAN WAJIB:\n\n1. Gunakan hanya data yang tersedia pada DATA PENGAJUAN.\n\n2. Jangan mengarang atau menambahkan informasi yang tidak terdapat pada data.\n\n3. Jangan memberikan keputusan, rekomendasi, atau penilaian apakah pengajuan disetujui atau ditolak.\n\n4. Jangan menulis salam pembuka seperti \"Yth. Bapak/Ibu Pejabat\".\n\n5. Jangan menulis kalimat penutup.\n\n6. Jangan menulis instruksi kepada pejabat.\n\n7. Jangan menyebutkan proses approval.\n\n8. Jangan menyebutkan bahwa data telah divalidasi.\n\n9. Jangan menyebutkan bahwa Anda adalah AI.\n\n10. Jangan membuat informasi tentang dokumen, lampiran, persyaratan, atau riwayat pemohon yang tidak tersedia.\n\n11. Jika keperluan terlalu umum atau tidak jelas, jangan menebak maksud pemohon. Jelaskan bahwa keperluan belum dijelaskan secara spesifik.\n\n12. Jika Keterangan Tambahan kosong, tuliskan \"Tidak ada\".\n\n13. Gunakan bahasa Indonesia yang formal, natural, singkat, dan mudah dipahami.\n\n14. Output HARUS hanya berisi format berikut dan tidak boleh ada teks lain.\n\nFORMAT OUTPUT:\n\nNama Pemohon: [nama]\nJenis Surat: [jenis surat]\nKeperluan: [keperluan]\nRingkasan: [1–2 kalimat yang menjelaskan pengajuan berdasarkan data yang tersedia]\nCatatan: [keterangan tambahan atau informasi yang kurang jelas; jika tidak ada tulis \"Tidak ada\"]"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        -16
+      ],
+      "id": "1b2339a3-f9df-44bd-9407-7d1c8d6f2f2b",
+      "name": "Meringkas informasi",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "A5azlrCBqvOSCTJe",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0",
+          "mode": "list",
+          "cachedResultName": "Formulir Pengajuan Kelurahan Jelambar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1805552640,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit#gid=1805552640"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Edit TimeStamp').item.json.timestamp_Format }}",
+            "Status Approval": "Menunggu Approval"
+          },
+          "matchingColumns": [
+            "Timestamp"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nama Pemohon ",
+              "displayName": "Nama Pemohon ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "NIK",
+              "displayName": "NIK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Alamat",
+              "displayName": "Alamat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nomor Telepon ",
+              "displayName": "Nomor Telepon ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Jenis Surat",
+              "displayName": "Jenis Surat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Keperluan",
+              "displayName": "Keperluan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Keterangan Tambahan",
+              "displayName": "Keterangan Tambahan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status Validasi",
+              "displayName": "Status Validasi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status Approval",
+              "displayName": "Status Approval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reminder",
+              "displayName": "Reminder",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        -16
+      ],
+      "id": "bb0c3a60-b0a5-450c-a946-cc640539d098",
+      "name": "Update Informasi : Menunggu Approval",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EEN77WZMC4ptKW73",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('If only If').item.json.Email }}",
+        "subject": "=Pengajuan {{ $('If only If').item.json['Jenis Surat'] }} Telah Disetujui",
+        "emailType": "text",
+        "message": "=Yth. Bapak/Ibu {{ $('If only If').item.json['Nama Pemohon '] }},  \n\nDengan hormat, kami informasikan bahwa pengajuan surat Anda telah selesai melalui proses verifikasi dan telah DISETUJUI.  \n\nBerikut detail pengajuan Anda:  \nNama Pemohon     : {{ $('If only If').item.json['Nama Pemohon '] }}\nJenis Surat      : {{ $('If only If').item.json['Jenis Surat'] }}\nKeperluan        : {{ $('If only If').item.json.Keperluan }}\n\nStatus Pengajuan : DISETUJUI  Surat yang telah disetujui sudah dapat diambil di Kantor Kelurahan Jelambar. \n\nMohon membawa identitas diri yang diperlukan pada saat pengambilan surat.  Demikian informasi ini kami sampaikan. Terima kasih atas perhatian dan kerja samanya.  \n\nHormat kami, \nPetugas Pelayanan Kelurahan Jelambar",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        496
+      ],
+      "id": "42fe617b-0126-4db8-8401-94b883c93a20",
+      "name": "Email : Untuk persuratan yang sudah disetujui",
+      "webhookId": "55a48e89-3340-401d-a3e4-e1620ade7146",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ahpaskqo2UAHHObd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "amarfirdaus9999@gmail.com",
+        "subject": "Reminder Approval Persuratan",
+        "emailType": "text",
+        "message": "=Yth. Bapak/Ibu Pejabat,  \n\nTerdapat pengajuan surat yang masih menunggu approval. Mohon dilakukan pemeriksaan dan tindak lanjut.  \nNama Pemohon: {{ $json['Nama Pemohon '] }}\nJenis Surat: {{ $json['Jenis Surat'] }}\nTanggal Pengajuan: {{ $json.Timestamp }}\n\nTerima kasih.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        112,
+        496
+      ],
+      "id": "7b560bc7-c9ae-4505-9c39-a66523810942",
+      "name": "Reminder Pejabat Terkait",
+      "webhookId": "0d1cea87-c9bb-4237-bd2c-43082186212e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ahpaskqo2UAHHObd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0",
+          "mode": "list",
+          "cachedResultName": "Formulir Pengajuan Kelurahan Jelambar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1805552640,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Jo1iOImKo4k3tr9_9oxcNSTJB7aymbAEy1RuddPHx0/edit#gid=1805552640"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('If only If').item.json.row_number }}",
+            "Reminder": "Disetujui",
+            "Status Approval": "Approval"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nama Pemohon ",
+              "displayName": "Nama Pemohon ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "NIK",
+              "displayName": "NIK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Alamat",
+              "displayName": "Alamat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nomor Telepon ",
+              "displayName": "Nomor Telepon ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Jenis Surat",
+              "displayName": "Jenis Surat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Keperluan",
+              "displayName": "Keperluan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Keterangan Tambahan",
+              "displayName": "Keterangan Tambahan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status Validasi",
+              "displayName": "Status Validasi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status Approval",
+              "displayName": "Status Approval",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reminder",
+              "displayName": "Reminder",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        496
+      ],
+      "id": "ca3ce982-4e50-4071-a633-7d1a9805a997",
+      "name": "Update : Persuratan sudah disetujui",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EEN77WZMC4ptKW73",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "primus27oke@gmail.com",
+        "subject": "Pengajuan Surat Baru - Menunggu Approval",
+        "emailType": "text",
+        "message": "=Yth. Bapak/Ibu Pejabat,  \n\nTerdapat pengajuan surat baru yang sudah divalidasi oleh petugas dan sekarang menunggu approval Bapak/Ibu.  \n\nRingkasan pengajuan (dibuat oleh AI Assistant): {{ $json.content.parts[0].text }}  \n\nKeputusan persetujuan sepenuhnya berada pada Bapak/Ibu. \n\nSilakan isi kolom \"Status Approval\" pada spreadsheet dengan keterangan yaitu \"Disetujui\" atau \"Ditolak\".  \n\nTerima kasih.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        -16
+      ],
+      "id": "ae69a199-5ecf-4e0a-ad47-9be01993a167",
+      "name": "Mengirim ke pejabat terkait",
+      "webhookId": "8c8dd761-b272-4fd1-be01-7660af165156",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ahpaskqo2UAHHObd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8ce47224-d63c-4e39-a606-ae2752413308",
+              "leftValue": "={{ $json['Status Approval'] }}",
+              "rightValue": "=Menunggu Approval",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "e24b0efb-927a-4d70-a1c0-b54bf867d084",
+              "leftValue": "={{ $json.Reminder }}",
+              "rightValue": "Sudah Dikirm ",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -160,
+        480
+      ],
+      "id": "2a009716-22de-43d1-b0c0-ed02e35b31f1",
+      "name": "If only If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        80
+      ],
+      "id": "d004f6e3-3265-4266-9dbe-266f03b8979c",
+      "name": "Eksekusi Persuratan per Menit"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 13
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -560,
+        480
+      ],
+      "id": "9818de6d-d1eb-464b-834b-406d726b280f",
+      "name": "Reminder : Trigger Kepada Pejabat Terkait"
+    },
+    {
+      "parameters": {
+        "content": "## Alasan : \nAutomation dibuat untuk mempercepat dan menyederhanakan proses persuratan, khususnya dalam pemantauan status pengajuan dan pemberian notifikasi. Sistem akan membantu memberikan reminder kepada atasan ketika pengajuan masih menunggu approval serta mengirimkan pemberitahuan otomatis kepada pemohon ketika surat telah disetujui dan siap diambil. Dengan demikian, proses menjadi lebih terstruktur, mengurangi pekerjaan manual, dan meminimalkan risiko lupa memberikan informasi.",
+        "height": 256,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "a32d5103-9908-4d30-8420-c0a0f705f38a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Otomatisasi Pengajuan, Approval, dan Notifikasi Surat Kelurahan",
+        "height": 80,
+        "width": 1232
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        -368
+      ],
+      "typeVersion": 1,
+      "id": "e5225109-0ae8-491e-9def-664f7a12b735",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Link G.Form \nAnda dapat mengunjungi link ini untuk mengetahui isi dari G.Form  :\nhttps://forms.gle/RfmjN7EyU3DjFeXo6\nhttps://forms.gle/RfmjN7EyU3DjFeXo6\nhttps://forms.gle/RfmjN7EyU3DjFeXo6",
+        "height": 128,
+        "width": 544
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "c648dc56-8c81-49ab-a1d2-5f279915b33b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Penjelasan Singkat \n1. Pemohon mengisi Google Form\nPemohon mengisi data seperti nama, NIK, email, alamat, nomor telepon, jenis surat, keperluan, dan keterangan tambahan.\n2. Data masuk ke Google Sheets\nSetelah formulir dikirim, data pemohon secara otomatis tersimpan di Google Sheets sebagai database pengajuan.\n3. Data diproses oleh n8n\nn8n mengambil data dari Google Sheets dan menjalankan workflow automation untuk memproses pengajuan.\n4. Petugas melakukan validasi\nData pengajuan diperiksa oleh petugas. Jika data sesuai, status validasi diubah menjadi Valid.\n5. Pengajuan menunggu approval\nSetelah validasi selesai, status pengajuan menjadi Menunggu Approval dan sistem mengirimkan notifikasi/reminder kepada atasan untuk melakukan approval.\n6. Atasan melakukan approval\nAtasan memeriksa pengajuan dan menentukan apakah surat disetujui.\n7. Jika disetujui, sistem mengirim notifikasi\nKetika status berubah menjadi Disetujui, n8n otomatis mengirim email kepada pemohon.\n8. Pemohon mengambil surat\nEmail berisi informasi bahwa surat telah disetujui dan sudah dapat diambil di Kantor Kelurahan Jelambar.",
+        "height": 608,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        192
+      ],
+      "typeVersion": 1,
+      "id": "02e2ea13-cbaf-46e6-81e6-df95c4a04905",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Workflow : Bagian 1",
+        "height": 80,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "5bbb108a-431b-4107-bd8a-459b983318db",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Workflow : Bagian 2",
+        "height": 80,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        352
+      ],
+      "typeVersion": 1,
+      "id": "742b557b-67ee-4b3c-b845-c9bde316c162",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If only If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pengajuan Permintaan Surat": {
+      "main": [
+        [
+          {
+            "node": "Eksekusi Persuratan per Menit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If only if": {
+      "main": [
+        [
+          {
+            "node": "Edit TimeStamp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email untuk data yang salah",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit TimeStamp": {
+      "main": [
+        [
+          {
+            "node": "Meringkas informasi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meringkas informasi": {
+      "main": [
+        [
+          {
+            "node": "Mengirim ke pejabat terkait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder Pejabat Terkait": {
+      "main": [
+        [
+          {
+            "node": "Update : Persuratan sudah disetujui",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mengirim ke pejabat terkait": {
+      "main": [
+        [
+          {
+            "node": "Update Informasi : Menunggu Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If only If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Reminder Pejabat Terkait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eksekusi Persuratan per Menit": {
+      "main": [
+        [
+          {
+            "node": "If only if",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminder : Trigger Kepada Pejabat Terkait": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update : Persuratan sudah disetujui": {
+      "main": [
+        [
+          {
+            "node": "Email : Untuk persuratan yang sudah disetujui",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a8801d58-5945-4bbe-b16c-3575eeed8d83",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "106a1aab14dae4401bd17ebe1e9ebb51b7d888bd4513b9e6445465e8333eef48"
+  },
+  "nodeGroups": [],
+  "id": "Im7qmGfFtABDgDgn",
+  "tags": []
+}
